@@ -9,42 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public record Chunk(Way start, Way end, Image layout, Image sprite) {
-
-    /**
-     * @param chunk the chunk to check
-     * @return true if this chunk can be connected to the given chunk
-     */
-    @Contract (pure = true)
-    public boolean isCompatible (Chunk chunk) {
-        return (this.end == chunk.start) && !this.equals (chunk);
-    }
-
-    /**
-     * @return the list of chunks
-     */
-    public static Chunk @NotNull [] getChunks () {
-        String[] names = getNameFromFolder ();
-        Image[] layouts = getImagesFromFolder ("src/Chunk/ChunkLayouts");
-        Image[] sprites = getImagesFromFolder ("src/Chunk/ChunkShowed");
-        List<Chunk> chunks = new ArrayList<> ();
-
-        assert names.length == layouts.length : "The number of chunks is not the same as the number of layouts";
-        assert names.length == sprites.length : "The number of chunks is not the same as the number of sprites";
-        for (int i = 0; i < names.length; i++) {
-            chunks.add (new Chunk (
-                    Way.fromString (names[i].substring (names[i].indexOf ("_") + 1, names[i].length () - 1)),
-                    Way.fromString (names[i].substring (names[i].indexOf ("_") + 2)),
-                    layouts[i],
-                    sprites[i]
-            ));
-        }
-
-        return chunks.toArray (new Chunk[0]);
-    }
+/**
+ * A chunk is a part of the map.
+ * @param id The id of the chunk
+ * @param start The start position of the road in the chunk
+ * @param end The end position of the road in the chunk
+ * @param layout The layout of the chunk (road, grass, water, etc)
+ * @param sprite The sprite of the chunk
+ * @author Giacchini Valerio
+ * @version 2.1
+ * @since 22/04/2022
+ * @see Way
+ * @see Map
+ */
+public record Chunk(int id, Way start, Way end, Image layout, Image sprite) {
 
     /**
      * @return the list of chunks name in the given folder
+     * @author Giacchini Valerio
+     * @see Chunk#getChunks()
      */
     private static String @NotNull [] getNameFromFolder () {
         File folder = new File("src/Chunk/ChunkLayouts");
@@ -62,6 +45,8 @@ public record Chunk(Way start, Way end, Image layout, Image sprite) {
     /**
      * @param path the path of the folder containing the chunks
      * @return the list of chunks in the given folder
+     * @author Giacchini Valerio
+     * @see Chunk#getChunks()
      */
     private static Image @NotNull [] getImagesFromFolder (String path) {
         File folder = new File(path);
@@ -76,13 +61,48 @@ public record Chunk(Way start, Way end, Image layout, Image sprite) {
         return images.toArray (new Image[0]);
     }
 
+    /**
+     * @return the list of chunks created (from the folder)
+     * @author Giacchini Valerio
+     */
+    public static Chunk @NotNull [] getChunks () {
+        String[] names = getNameFromFolder ();
+        Image[] layouts = getImagesFromFolder ("src/Chunk/ChunkLayouts");
+        Image[] sprites = getImagesFromFolder ("src/Chunk/ChunkShowed");
+        List<Chunk> chunks = new ArrayList<> ();
+
+        assert names.length == layouts.length : "The number of chunks is not the same as the number of layouts";
+        assert names.length == sprites.length : "The number of chunks is not the same as the number of sprites";
+
+        // example of a chunk name "<id>_<start><end>" --> 1_lr --> id = 1, start = left, end = right
+        for (int i = 0; i < names.length; i++)
+            chunks.add (new Chunk (
+                    Integer.parseInt (names[i].substring (0, names[i].indexOf ("_"))),
+                    Way.fromString (names[i].substring (names[i].indexOf ("_") + 1, names[i].length () - 1)),
+                    Way.fromString (names[i].substring (names[i].indexOf ("_") + 2)),
+                    layouts[i],
+                    sprites[i]
+            ));
+
+        return chunks.toArray (new Chunk[0]);
+    }
+
+    /**
+     * @param chunk the chunk to check
+     * @return true if this chunk can be connected to the given chunk
+     * @author Giacchini Valerio
+     */
+    @Contract (pure = true)
+    public boolean isConnectable (Chunk chunk) {
+        return (this.end == chunk.start) && !this.equals (chunk);
+    }
+
     @Override
     public String toString () {
         return "Chunk{" +
-                "start=" + start +
-                ", end=" + end +
-                ", layout=" + layout +
-                ", sprite=" + sprite +
+                "id=" + id +
+                ", start=" + this.start +
+                ", end=" + this.end +
                 '}';
     }
 

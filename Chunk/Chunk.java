@@ -7,20 +7,20 @@ import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A chunk is a part of the map.
- * @param id The id of the chunk
- * @param start The start position of the road in the chunk
- * @param end The end position of the road in the chunk
+ *
+ * @param id     The id of the chunk
+ * @param start  The start position of the road in the chunk
+ * @param end    The end position of the road in the chunk
  * @param layout The layout of the chunk (road, grass, water, etc)
  * @param sprite The sprite of the chunk
  * @author Giacchini Valerio
- * @version 2.1
- * @since 22/04/2022
+ * @version 2.2
  * @see Way
  * @see Map
+ * @since 22/04/2022
  */
 public record Chunk(int id, Way start, Way end, Image layout, Image sprite) {
 
@@ -30,13 +30,13 @@ public record Chunk(int id, Way start, Way end, Image layout, Image sprite) {
      * @see Chunk#getChunks()
      */
     private static String @NotNull [] getNameFromFolder () {
-        File folder = new File("src/Chunk/ChunkLayouts");
-        File[] listOfFiles = folder.listFiles();
+        File folder = new File ("src/Chunk/ChunkLayouts");
+        File[] listOfFiles = folder.listFiles ();
         List<String> fileNames = new ArrayList<> ();
 
         assert listOfFiles != null;
         for (File file : listOfFiles)
-            if (file.isFile())
+            if (file.isFile ())
                 fileNames.add (file.getName ().substring (0, file.getName ().length () - 4));
 
         return fileNames.toArray (new String[0]);
@@ -49,13 +49,13 @@ public record Chunk(int id, Way start, Way end, Image layout, Image sprite) {
      * @see Chunk#getChunks()
      */
     private static Image @NotNull [] getImagesFromFolder (String path) {
-        File folder = new File(path);
-        File[] listOfFiles = folder.listFiles();
+        File folder = new File (path);
+        File[] listOfFiles = folder.listFiles ();
         List<Image> images = new ArrayList<> ();
 
         assert listOfFiles != null;
         for (File file : listOfFiles)
-            if (file.isFile())
+            if (file.isFile ())
                 images.add (Toolkit.getDefaultToolkit ().getImage (file.getPath ()));
 
         return images.toArray (new Image[0]);
@@ -110,11 +110,6 @@ public record Chunk(int id, Way start, Way end, Image layout, Image sprite) {
     public boolean equals (Object o) {
         if (this == o) return true;
         if (!(o instanceof Chunk chunk)) return false;
-        return start == chunk.start && end == chunk.end;
-    }
-
-    @Override
-    public int hashCode () {
-        return Objects.hash (start, end);
+        return this.id == chunk.id && this.start == chunk.start && this.end == chunk.end;
     }
 }

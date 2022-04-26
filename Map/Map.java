@@ -10,10 +10,11 @@ import java.util.*;
  * You can iterate over the map to get all the chunks.
  * A Map can be generated from personalized seed.
  * Same seed will generate the same map.
+ *
  * @author Giacchini Valerio
- * @version 2.6
- * @since 22/04/2022
+ * @version 3.2
  * @see Chunk
+ * @since 22/04/2022
  */
 public class Map implements Iterable<Chunk> {
     /**
@@ -25,7 +26,6 @@ public class Map implements Iterable<Chunk> {
      * the number of digits of the seed
      */
     public static final int SEED_LENGTH = 5;
-
 
     /**
      * Minimal number of chunks in the map
@@ -47,16 +47,28 @@ public class Map implements Iterable<Chunk> {
     protected String seed;
 
     public Map () {
-        this.generateFromSeed (Map.generateSeed ());
+        this.initialize (Map.generateSeed ());
     }
 
     public Map (String seed) {
-        this.generateFromSeed (seed);
+        this.initialize (seed);
+    }
+
+    /**
+     * initialize the map with the given seed
+     *
+     * @param seed the seed to initialize the map
+     */
+    public void initialize (String seed) {
+        this.seed = seed;
+        this.map = Map.generateFromSeed (this.seed);
     }
 
     /**
      * generate a string with SEED_LENGTH digits
+     *
      * @return the seed of the map
+     * @author Giacchini Valerio
      * @see Map#SEED_LENGTH
      */
     public static @NotNull String generateSeed () {
@@ -69,15 +81,18 @@ public class Map implements Iterable<Chunk> {
     /**
      * @param seed the seed to check
      * @return true if the seed is legal (SEED_LENGTH digits)
+     * @author Giacchini Valerio
      * @see Map#SEED_LENGTH
      */
     public static boolean legalSeed (String seed) {
+        if (seed == null) return false;
         return seed.matches ("\\d*") && seed.length () == Map.SEED_LENGTH;
     }
 
     /**
      * @param start the chunk to check
      * @return the list of the chunks that can be connected to the start
+     * @author Giacchini Valerio
      * @see Chunk#isConnectable(Chunk)
      */
     protected static List<Chunk> getConnectableChunks (Chunk start) {
@@ -88,6 +103,43 @@ public class Map implements Iterable<Chunk> {
                 connectableChunks.add (chunk);
 
         return connectableChunks;
+    }
+
+    /**
+     * generate the map from the given seed
+     * same seed will generate the same map
+     *
+     * @param seed the seed to generate the map
+     * @return the map generated from the seed
+     * @author Giacchini Valerio
+     */
+    protected static Chunk @NotNull [] generateFromSeed (String seed) {
+        assert Map.legalSeed (seed) : "Seed %s is illegal".formatted (seed);
+
+        // Random based on the map seed (deterministic with the same seed)
+        Random random = new Random (seed.hashCode ());
+
+        List<Chunk> map = new ArrayList<> ();
+
+        // the first time all chucks are compatible because the map is empty
+        List<Chunk> connectableChunks = Arrays.asList (Map.CHUNKS.clone ());
+
+        int mapLength = random.nextInt (Map.MIN_MAP_LENGTH, Map.MAX_MAP_LENGTH);
+
+        for (int i = 0; i < mapLength; i++) {
+            Collections.shuffle (connectableChunks, random);
+            map.add (connectableChunks.get (0));
+            connectableChunks = Map.getConnectableChunks (connectableChunks.get (0));
+        }
+
+        return map.toArray (new Chunk[0]);
+    }
+
+    @Override
+    public boolean equals (Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Map chunks)) return false;
+        return Arrays.deepEquals (this.map, chunks.map) && Objects.equals (this.seed, chunks.seed);
     }
 
     @Override
@@ -102,35 +154,8 @@ public class Map implements Iterable<Chunk> {
     }
 
     /**
-     * generate the map from the seed
-     * it changes the map field and the seed field
-     * @param seed the seed to generate the map
-     */
-    protected void generateFromSeed (String seed) {
-        assert Map.legalSeed (seed): "Seed %s is illegal".formatted (seed);
-        this.seed = seed;
-
-        // Random based on the map seed (deterministic with the same seed)
-        Random random = new Random (seed.hashCode ());
-
-        List<Chunk> map = new ArrayList<> ();
-
-        // the first time all chucks are compatible because the map is empty
-        List<Chunk> connectableChunks = Arrays.asList (Map.CHUNKS);
-
-        int mapLength = random.nextInt (Map.MIN_MAP_LENGTH, Map.MAX_MAP_LENGTH);
-
-        for (int i = 0; i < mapLength; i++) {
-            Collections.shuffle (connectableChunks, random);
-            map.add (connectableChunks.get (0));
-            connectableChunks = Map.getConnectableChunks (connectableChunks.get (0));
-        }
-
-        this.map = map.toArray (new Chunk[0]);
-    }
-
-    /**
      * @return every chunk in the map
+     * @author Giacchini Valerio
      * @see Chunk
      */
     @NotNull

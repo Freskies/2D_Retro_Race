@@ -4,24 +4,28 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * A way is the side the street is on in a chunk.
+ *
  * @author Giacchini Valerio
  * @version 1.1
- * @since 22/04/2022
  * @see Chunk
+ * @since 22/04/2022
  */
 public enum Way {
     /**
      * The street is on the left side of the chunk.
+     *
      * @see Chunk
      */
     LEFT,
     /**
      * The street is in the center of the chunk.
+     *
      * @see Chunk
      */
     CENTER,
     /**
      * The street is on the right side of the chunk.
+     *
      * @see Chunk
      */
     RIGHT;

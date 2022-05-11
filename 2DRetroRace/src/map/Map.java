@@ -11,7 +11,7 @@ import java.util.List;
  * A Map can be generated from personalized seed.
  * Same seed will generate the same map.
  * @author Giacchini Valerio
- * @version 0.4.0
+ * @version 0.4.1
  * @see Chunk
  * @since 22/04/2022
  */
@@ -121,6 +121,15 @@ public class Map implements Iterable<Chunk> {
 		}
 
 		return map;
+	}
+	
+	/**
+	 * @return the length of the map (number of chunks)
+	 * @author Giacchini Valerio
+	 * @see Map#map
+	 */
+	public int length () {
+		return this.map.size ();
 	}
 
 	@Override
